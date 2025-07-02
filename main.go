@@ -1,26 +1,42 @@
 package main
 
 import (
-    "encoding/json"
     "fmt"
     "log"
     "os"
+    "path/filepath"
 )
 
 func main() {
-    filePath := "data/example-data.json"
+    dataDir := "data"
     if len(os.Args) > 1 {
-        filePath = os.Args[1]
+        dataDir = os.Args[1]
     }
 
-    seed, err := ParseSeedData(filePath)
+    entries, err := os.ReadDir(dataDir)
     if err != nil {
-        log.Fatalf("failed to parse seed data: %v", err)
+        log.Fatalf("failed to read data directory %s: %v", dataDir, err)
     }
 
-    pretty, err := json.MarshalIndent(seed, "", "  ")
-    if err != nil {
-        log.Fatalf("failed to marshal seed data: %v", err)
+    var failures int
+    for _, entry := range entries {
+        if entry.IsDir() {
+            continue
+        }
+        if filepath.Ext(entry.Name()) != ".json" {
+            continue
+        }
+
+        filePath := filepath.Join(dataDir, entry.Name())
+        if _, err := ParseSeedData(filePath); err != nil {
+            failures++
+            fmt.Printf("FAIL  %s: %v\n", filePath, err)
+        } else {
+            fmt.Printf("SUCCESS %s\n", filePath)
+        }
     }
-    fmt.Println(string(pretty))
+
+    if failures > 0 {
+        os.Exit(1)
+    }
 } 
