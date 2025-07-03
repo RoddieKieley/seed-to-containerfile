@@ -13,51 +13,26 @@
 
 # Data provided
 
-* The data provided is in the JavaScript Object Notation (JSON) as per the Request for Comments: 4627 at https://www.ietf.org/rfc/rfc4627.txt
-* Example provided JSON data is as follows:
+* The data provided is in the YAML 1.2 data language as per the definition of the YAML specification v1.2.2 at https://yaml.org/spec/1.2.2/
+* Example provided YAML data is as follows:
 ```
-{
-  "id": "01129bff-3d65-4e3d-8e82-6f2f269f818c",
-  "name": "io.github.gongrzhe/redis-mcp-server",
-  "description": "A Redis MCP server (pushed to https://github.com/modelcontextprotocol/servers/tree/main/src/redis) implementation for interacting with Redis databases. This server enables LLMs to interact with Redis key-value stores through a set of standardized tools.",
-  "repository": {
-    "url": "https://github.com/GongRzhe/REDIS-MCP-Server",
-    "source": "github",
-    "id": "907849235"
-  },
-  "version_detail": {
-    "version": "0.0.1-seed",
-    "release_date": "2025-05-16T19:13:21Z",
-    "is_latest": true
-  },
-  "packages": [
-    {
-      "registry_name": "docker",
-      "name": "@gongrzhe/server-redis-mcp",
-      "version": "1.0.0",
-      "package_arguments": [
-        {
-          "description": "Docker image to run",
-          "is_required": true,
-          "format": "string",
-          "value": "mcp/redis",
-          "default": "mcp/redis",
-          "type": "positional",
-          "value_hint": "mcp/redis"
-        },
-        {
-          "description": "Redis server connection string",
-          "is_required": true,
-          "format": "string",
-          "value": "redis://host.docker.internal:6379",
-          "default": "redis://host.docker.internal:6379",
-          "type": "positional",
-          "value_hint": "host.docker.internal:6379"
-        }
-      ]
-    }
-  ]
-}
+spec:
+  server_detail:
+    description: Awesome MCP Servers - A curated list of Model Context Protocol servers
+    id: 0007544a-3948-4934-866b-b4a96fe53b55
+    name: io.github.appcypher/awesome-mcp-servers
+    packages:
+      - name: appcypher/awesome-mcp-servers
+        registry_name: unknown
+        version: ''
+    repository:
+      id: '895801050'
+      source: github
+      url: 'https://github.com/appcypher/awesome-mcp-servers'
+    version_detail:
+      is_latest: true
+      release_date: '2025-05-16T19:16:40Z'
+      version: 0.0.1-seed
 ```
 
 # What to do
@@ -66,35 +41,42 @@
 
 ### Process the data into golang types
 
-* Write the Example provided JSON data to a file `example-data.json` in the `data` directory within the project. If this file is found to already exist in the project then overwrite the existing `example-data.json` file with the Example provided JSON data previously provided.
-* Analyse the Example provided JSON data file `example-data.json`, creating matching valid golang structs with json: annotations.
-** Write these matching valid golang structs to a file `seed_types.go` in the `types` directory using the following Example as a guide for all the golang struct types required to read in the Example provided JSON data from the `example-data.json` file.
-** Example golang struct with json: annotation for the "version_detail" entry from the Example provided JSON data previously provided:
+* Write the Example provided YAML data to a file `example-data.yaml` in the `data` directory within the project. If this file is found to already exist in the project then overwrite the existing `example-data.yaml` file with the Example provided YAML data previously provided.
+* Analyse the Example provided YAML data file `example-data.yaml`, creating matching valid golang structs with json: annotations.
+** The top level `spec:` entry corresponds to a specification for an MCP Server. The golang struct utilized in this command line utility project should match the `type McpServerSpec struct` found at https://github.com/RHEcosystemAppEng/mcp-catalog-operator/blob/main/api/v1alpha1/mcpserver_types.go.
+** Further more any subsequent related golang struct types that are required should also be used directly from https://github.com/RHEcosystemAppEng/mcp-catalog-operator/blob/main/api/v1alpha1/mcpserver_types.go where possible.
+** Write these required golang struct types to a file `mcpserver_types.go` in the `types` directory.
+** Example golang struct type with json: annotation for the top level `spec:` and child `server_detail:` sections from the Example provided YAML data previously provided:
 ```
-type VersionDetailType struct {
-    // "version": "0.0.1-seed",
-    Version *string `json:"version,omitempty"`
-    // "release_date": "2025-05-16T19:13:21Z",
-    ReleaseDate *string `json:"releaseDate,omitempty"
-    //"is_latest": true
-    IsLatest *bool `json:"isLatest,omitempty"
+// McpServerSpec defines the desired state of McpServer.
+type McpServerSpec struct {
+	ServerDetail ServerDetail `json:"server_detail"`
+}
+
+// ServerDetail represents detailed server information as defined in the spec
+type ServerDetail struct {
+	Server   `json:",inline"`
+	Packages []Package `json:"packages,omitempty"`
+	Remotes  []Remote  `json:"remotes,omitempty"`
 }
 ```
+** Where the golang struct types differ between the Example golang struct type and those in the https://github.com/RHEcosystemAppEng/mcp-catalog-operator/blob/main/api/v1alpha1/mcpserver_types.go file differ, prefer those in the mcpserver_types.go file where possible.
+
 
 ### Write the golang source code for the command line utility
 
 * Write a command line utility in golang that utilizes the valid golang structs previously written to the `seed_types.go` file in the `types` directory.
 ** This command line utility in golang must:
-*** Examine the `data` directory to find all `*.json` files.
-*** For each of the `*.json` files found in the `data` directory, read and parse the JSON data from the individual file into the valid golang structs found in the `seed_types.go` file.
+*** Examine the `data` directory to find all `*.yaml` files.
+*** For each of the `*.yaml` files found in the `data` directory, read and parse the YAML data from the individual file into the valid golang structs found in the `seed_types.go` file.
 **** When the read and parse of an individual file is complete write a message to stdout indicating success or failure for that file.
 
 ### Write the golang test source code for the command line utility
 
 * You prefer to write the golang test source code for the command line utility using the ginkgo Modern Testing Framework from https://github.com/onsi/ginkgo and the gomega Preferred Matcher Library from https://github.com/onsi/gomega. The ginkgo Modern Testing Framework focuses on Behaviour-driven development as documented at https://en.wikipedia.org/wiki/Behavior-driven_development
 * Write matching tests for this golang command line utility using the ginkgo Modern Testing Framework and gomega Preferred Matcher Library using a Behaviour-driven development approach.
-** In particular ensure the tests cover the functionality reading, parsing, and marshalling the JSON into golang struct type instances from `seed_types.go` by using the original Example provided JSON data from `example-data.json` in the `data` directory.
-** A test must be provided that takes the Example provided JSON data from `example-data.json` in the `data` directory, loads it successfully into the golang struct types in `seed_types.go`, then writes the data back to a new file named `example-data-rewritten.json` in the `data` directory in correct JSON format such that it is identical and compares successfully against the `example-data.json` in the `data` directory.
+** In particular ensure the tests cover the functionality reading, parsing, and marshalling the YAML into golang struct type instances from `seed_types.go` by using the original Example provided YAML data from `example-data.yaml` in the `data` directory.
+** A test must be provided that takes the Example provided YAML data from `example-data.yaml` in the `data` directory, loads it successfully into the golang struct types in `seed_types.go`, then writes the data back to a new file named `example-data-rewritten.yaml` in the `data` directory in correct YAML format such that it is identical and compares successfully against the `example-data.yaml` in the `data` directory.
 * Execute the tests created using the `go test ./...` shell command. If all tests are Passed then proceed to the `Build the OCI image` section.
 
 ## Build the OCI image
