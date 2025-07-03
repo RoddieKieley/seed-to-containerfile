@@ -1,34 +1,34 @@
 package main
 
 import (
-    "encoding/json"
+    "gopkg.in/yaml.v3"
     "os"
     "path/filepath"
 
     . "github.com/onsi/ginkgo/v2"
     . "github.com/onsi/gomega"
+    "seed-to-containerfile/types"
 )
 
 var _ = Describe("ParseSeedData", func() {
-    It("parses example-data.json without error and captures ID", func() {
-        targetPath := filepath.Join("data", "example-data.json")
-        seed, err := ParseSeedData(targetPath)
+    It("parses example-data.yaml without error and captures ID", func() {
+        targetPath := filepath.Join("data", "example-data.yaml")
+        spec, err := ParseSpecData(targetPath)
         Expect(err).ToNot(HaveOccurred())
-        Expect(seed).ToNot(BeNil())
-        Expect(seed.ID).ToNot(BeNil())
-        Expect(*seed.ID).To(Equal("01129bff-3d65-4e3d-8e82-6f2f269f818c"))
+        Expect(spec).ToNot(BeNil())
+        Expect(spec.ServerDetail.ID).To(Equal("0007544a-3948-4934-866b-b4a96fe53b55"))
     })
 
-    It("rewrites example-data.json and produces semantically identical JSON", func() {
-        originalPath := filepath.Join("data", "example-data.json")
-        rewrittenPath := filepath.Join("data", "example-data-rewritten.json")
+    It("rewrites example-data.yaml and produces semantically identical YAML", func() {
+        originalPath := filepath.Join("data", "example-data.yaml")
+        rewrittenPath := filepath.Join("data", "example-data-rewritten.yaml")
 
         // Parse original
-        seed, err := ParseSeedData(originalPath)
+        spec, err := ParseSpecData(originalPath)
         Expect(err).ToNot(HaveOccurred())
 
-        // Marshal back to JSON (pretty format)
-        buf, err := json.MarshalIndent(seed, "", "  ")
+        // Marshal back to YAML (pretty format)
+        buf, err := yaml.Marshal(&struct{Spec *types.McpServerSpec `yaml:"spec"`}{Spec: spec})
         Expect(err).ToNot(HaveOccurred())
 
         // Write rewritten file
@@ -39,8 +39,8 @@ var _ = Describe("ParseSeedData", func() {
 
         originalBytes, err := os.ReadFile(originalPath)
         Expect(err).ToNot(HaveOccurred())
-        Expect(json.Unmarshal(originalBytes, &originalObj)).To(Succeed())
-        Expect(json.Unmarshal(buf, &rewrittenObj)).To(Succeed())
+        Expect(yaml.Unmarshal(originalBytes, &originalObj)).To(Succeed())
+        Expect(yaml.Unmarshal(buf, &rewrittenObj)).To(Succeed())
 
         Expect(rewrittenObj).To(Equal(originalObj))
 

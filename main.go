@@ -23,12 +23,13 @@ func main() {
         if entry.IsDir() {
             continue
         }
-        if filepath.Ext(entry.Name()) != ".json" {
+        ext := filepath.Ext(entry.Name())
+        if ext != ".yaml" && ext != ".yml" {
             continue
         }
 
         filePath := filepath.Join(dataDir, entry.Name())
-        if _, err := ParseSeedData(filePath); err != nil {
+        if _, err := ParseSpecData(filePath); err != nil {
             failures++
             fmt.Printf("FAIL  %s: %v\n", filePath, err)
         } else {
