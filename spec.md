@@ -17,7 +17,9 @@
 * The data provided is in the YAML 1.2 data language as per the definition of the YAML specification v1.2.2 at https://yaml.org/spec/1.2.2/
 * The data conforms to the OpenAPI Specification v3.1.0 at https://spec.openapis.org/oas/v3.1.0.html
 * The OpenAPI Specification v3.1.0 compliant data structure is specified in the `customresourcedefinition-mcpservers.mcp.opendatahub.io.yaml` file in the `ref` directory in this project.
+* In the Example provided YAML data that follows there will be multiple entries in the Example provided YAML data in the form of a numbered list, each of which begins with `spec:`.
 * Example provided YAML data is as follows:
+1.
 ```
 spec:
   server_detail:
@@ -37,10 +39,33 @@ spec:
       release_date: '2025-05-16T19:16:40Z'
       version: 0.0.1-seed
 ```
+2.  
+```
+spec:
+  server_detail:
+    description: ''
+    id: 010904ec-6e39-4bdc-878a-75a6e79d0500
+    name: io.github.kyrietangsheng/mcp-server-nationalparks
+    packages:
+      - environment_variables:
+          - description: YOUR_NPS_API_KEY
+            name: NPS_API_KEY
+        name: mcp-server-nationalparks
+        registry_name: npm
+        version: 1.0.0
+    repository:
+      id: '951713109'
+      source: github
+      url: 'https://github.com/KyrieTangSheng/mcp-server-nationalparks'
+    version_detail:
+      is_latest: true
+      release_date: '2025-05-16T19:11:05Z'
+      version: 0.0.1-seed
+```
 
 # What to do
 
-* Write the Example provided YAML data to a file `example-data.yaml` in the `data` directory within the project. If this file is found to already exist in the project then overwrite the existing `example-data.yaml` file with the Example provided YAML data previously provided.
+* Write each of the provided Example provided YAML data entries from the numbered list to a file `example-data-#.yaml` where the `#` is replaced with the numbered list number itself. Write these files with numbered filenames in the `data` directory within the project. If one of the numbered list number files is found to already exist in the project then overwrite the existing file with the Example provided YAML data from the numbered list entry previously provided.
 
 ## Create the command line utility
 
@@ -80,8 +105,8 @@ type ServerDetail struct {
 
 * You prefer to write the golang test source code for the command line utility using the ginkgo Modern Testing Framework from https://github.com/onsi/ginkgo and the gomega Preferred Matcher Library from https://github.com/onsi/gomega. The ginkgo Modern Testing Framework focuses on Behaviour-driven development as documented at https://en.wikipedia.org/wiki/Behavior-driven_development
 * Write matching tests for this golang command line utility using the ginkgo Modern Testing Framework and gomega Preferred Matcher Library using a Behaviour-driven development approach.
-  * In particular ensure the tests cover the functionality reading, parsing, and marshalling the YAML into golang struct type instances from `mcpserver_types.go` by using the original Example provided YAML data from `example-data.yaml` in the `data` directory.
-  * A test must be provided that takes the Example provided YAML data from `example-data.yaml` in the `data` directory, loads it successfully into the golang struct types in `mcpserver_types.go`, then writes the data back to a new file named `example-data-rewritten.yaml` in the `data` directory in correct YAML format such that it is identical and compares successfully against the `example-data.yaml` in the `data` directory.
+  * In particular ensure the tests cover the functionality reading, parsing, and marshalling the YAML into golang struct type instances from `mcpserver_types.go` by using the original Example provided YAML data files from the `example-data-#.yaml` files in the `data` directory.
+  * A test must be provided that takes the each of the Example provided YAML data files of the name `example-data-#.yaml` in the `data` directory in turn, load it successfully into the golang struct types in `mcpserver_types.go`, then writes the data back to a new file named `example-data-rewritten-#.yaml` in the `data` directory in correct YAML format such that it is identical and compares successfully against the `example-data-#.yaml` in the `data` directory.
 * Execute the tests created using the `go test ./...` shell command. If all tests are Passed then proceed to the `Build the OCI image` section.
 
 ## Build the OCI image for the command line utility
