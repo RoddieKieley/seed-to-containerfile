@@ -1,0 +1,20 @@
+spec:
+  server_detail:
+    description: ''
+    id: 010904ec-6e39-4bdc-878a-75a6e79d0500
+    name: io.github.kyrietangsheng/mcp-server-nationalparks
+    packages:
+      - environment_variables:
+          - description: YOUR_NPS_API_KEY
+            name: NPS_API_KEY
+        name: mcp-server-nationalparks
+        registry_name: npm
+        version: 1.0.0
+    repository:
+      id: '951713109'
+      source: github
+      url: 'https://github.com/KyrieTangSheng/mcp-server-nationalparks'
+    version_detail:
+      is_latest: true
+      release_date: '2025-05-16T19:11:05Z'
+      version: 0.0.1-seed
