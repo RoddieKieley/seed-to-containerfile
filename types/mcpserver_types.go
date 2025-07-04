@@ -41,16 +41,74 @@ type VersionDetail struct {
     IsLatest    bool   `json:"is_latest,omitempty" yaml:"is_latest,omitempty"`
 }
 
+// UserInput represents a user input as defined in the CRD schema.
+type UserInput struct {
+    // Core string fields
+    Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
+    Description string            `json:"description,omitempty" yaml:"description,omitempty"`
+    Value       string            `json:"value,omitempty" yaml:"value,omitempty"`
+    Default     string            `json:"default,omitempty" yaml:"default,omitempty"`
+    Format      string            `json:"format,omitempty" yaml:"format,omitempty"`
+
+    // Flags
+    IsRequired bool `json:"is_required,omitempty" yaml:"is_required,omitempty"`
+    IsSecret   bool `json:"is_secret,omitempty" yaml:"is_secret,omitempty"`
+
+    // Advanced
+    Choices    []string          `json:"choices,omitempty" yaml:"choices,omitempty"`
+    Properties map[string]string `json:"properties,omitempty" yaml:"properties,omitempty"`
+    Template   string            `json:"template,omitempty" yaml:"template,omitempty"`
+
+    // Nested variable substitutions (string->UserInput)
+    Variables map[string]UserInput `json:"variables,omitempty" yaml:"variables,omitempty"`
+}
+
+// EnvironmentVariable represents an environment variable definition within a Package.
+// It re-uses the UserInput schema but is kept separate for clarity in case of future divergence.
+type EnvironmentVariable UserInput
+
+// RuntimeArgument defines an argument (positional or named) for package/runtime execution.
+type RuntimeArgument struct {
+    // Required discriminator
+    Type string `json:"type" yaml:"type"`
+
+    // Common to UserInput
+    Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
+    Description string            `json:"description,omitempty" yaml:"description,omitempty"`
+    Value       string            `json:"value,omitempty" yaml:"value,omitempty"`
+    Default     string            `json:"default,omitempty" yaml:"default,omitempty"`
+    Format      string            `json:"format,omitempty" yaml:"format,omitempty"`
+
+    // Flags
+    IsRequired bool `json:"is_required,omitempty" yaml:"is_required,omitempty"`
+    IsSecret   bool `json:"is_secret,omitempty" yaml:"is_secret,omitempty"`
+    IsRepeated bool `json:"is_repeated,omitempty" yaml:"is_repeated,omitempty"`
+
+    // Advanced
+    Choices    []string          `json:"choices,omitempty" yaml:"choices,omitempty"`
+    ValueHint  string            `json:"value_hint,omitempty" yaml:"value_hint,omitempty"`
+    Properties map[string]string `json:"properties,omitempty" yaml:"properties,omitempty"`
+    Template   string            `json:"template,omitempty" yaml:"template,omitempty"`
+
+    Variables map[string]UserInput `json:"variables,omitempty" yaml:"variables,omitempty"`
+}
+
 // Package entry.
 type Package struct {
     RegistryName string `json:"registry_name" yaml:"registry_name"`
     Name         string `json:"name" yaml:"name"`
     Version      string `json:"version" yaml:"version"`
-    // Additional fields may exist but are omitted for brevity
+
+    // Extended fields
+    EnvironmentVariables []EnvironmentVariable `json:"environment_variables,omitempty" yaml:"environment_variables,omitempty"`
+    PackageArguments     []RuntimeArgument     `json:"package_arguments,omitempty" yaml:"package_arguments,omitempty"`
+    RuntimeArguments     []RuntimeArgument     `json:"runtime_arguments,omitempty" yaml:"runtime_arguments,omitempty"`
+    RuntimeHint          string               `json:"runtime_hint,omitempty" yaml:"runtime_hint,omitempty"`
 }
 
-// Remote describes remote endpoint information.
+// Remote describes a remote connection endpoint.
 type Remote struct {
-    Name string `json:"name,omitempty" yaml:"name,omitempty"`
-    URL  string `json:"url,omitempty" yaml:"url,omitempty"`
+    TransportType string       `json:"transport_type" yaml:"transport_type"`
+    URL           string       `json:"url" yaml:"url"`
+    Headers       []UserInput  `json:"headers,omitempty" yaml:"headers,omitempty"`
 } 
